@@ -1,4 +1,4 @@
-# Resent on Audio for Age Classification
+# ResNet on Audio for Age Classification
 
 ## How to run
 `train.py` is the training script. It takes the following arguments -  
