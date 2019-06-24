@@ -1,0 +1,4 @@
+                   val      train             curr_train                                                 
+       lr     l2     l    A     l     A epoch          l     A curr_epoch last_update batch_seen finished
+0  0.0001  0.001  0.02  1.0  0.01  0.19     2        0.0  0.25        3.0         1.0          2     True
+1  0.0001  0.010  0.02  0.7  0.01  0.00     1        NaN   NaN        NaN         NaN          1    False
