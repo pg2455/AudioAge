@@ -48,7 +48,7 @@ python setup.py develop
 If `mlogger` is in the repo, you can also just  `python setup.py develop` instead of going through the above steps.
 
 ## Hyperparameter Tuning
-The only thing needed to run hyperparameter tuning is to write a python script like `run-gausswindow.py` and then run the generated scripts from it.
+The only thing needed to run hyperparameter tuning is to write a python script like `run-gausswindow.py` and then run the script generated from it.
 
 `run-gausswindow.py` is a script to generate `run_exp-GAUSSIANres18.sh`. The python script calls `generate_shell_script()` in `shell_utils.py` to generate a list of python commands needed to run for the experiment.
 
