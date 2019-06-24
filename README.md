@@ -1,6 +1,6 @@
 # ResNet on Audio for Age Classification
 
-## How to run
+## How to run a single experiment
 `train.py` is the training script. It takes the following arguments -  
 
 ```
@@ -46,6 +46,16 @@ python setup.py develop
 ```
 
 If `mlogger` is in the repo, you can also just  `python setup.py develop` instead of going through the above steps.
+
+## Hyperparameter Tuning
+The only thing needed to run hyperparameter tuning is to write a python script like `run-gausswindow.py` and then run the generated scripts from it.
+
+`run-gausswindow.py` is a script to generate `run_exp-GAUSSIANres18.sh`. The python script calls `generate_shell_script()` in `shell_utils.py` to generate a list of python commands needed to run for the experiment.
+
+Use the command below to tabulate results from the above experiments. Example output is in `results-GAUSSIANres18`
+```
+python shell_utils.py --show_results -id=GAUSSIANres18
+```
 
 ## Troubleshooting
 

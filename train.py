@@ -31,7 +31,6 @@ def compute_loss(batch, backward = False):
     return loss.detach().item() / len(batch), 1.0 * (torch.argmax(output, dim=1) == torch.argmax(target, dim=1)).sum().item() / len(batch)
 
 def eval_model(val_data):
-    pass
     total_loss, total_acc, total_obs = 0, 0, 0
     for i, batch in enumerate(val_data):
         batch_loss, batch_acc  = compute_loss(batch, backward = True)
@@ -91,7 +90,7 @@ def train(model, train_data, optimizer):
                     model_state.update(model_state_tmp)
                     torch.save(model_state, os.path.join(MODELDIR, "model_training.state"))
 
-                if last_update > 1.* params.lastupdate or np.isnan(val_loss) or epoch > epoch_limit:
+                if last_update > 1.0* params.lastupdate or np.isnan(val_loss) or epoch > epoch_limit:
                     continue_train = False
                     break
 
