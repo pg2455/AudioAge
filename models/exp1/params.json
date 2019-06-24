@@ -1,13 +1,14 @@
 {
-  "timeframe":5,
+  "timeframe":20,
   "windowfn":"gaussian",
   "modelarch":"resnet18",
   "lr":0.0001,
   "batchsize":64,
-  "xbatches":70,
+  "xbatches":100,
   "schedulerfactor":0.5,
   "schedulerpatience":50,
   "l2":0.0,
   "epoch":100,
-  "job_name":"base"
+  "job_name":"base",
+  "lastupdate":10
 }
