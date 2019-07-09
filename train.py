@@ -142,9 +142,10 @@ if  __name__ == "__main__":
         window_fn = signal.gaussian(51, std=1)
 
     # load data
-    train_data = AgeDataHandler(args.train_datadir, batch_size)
+    train_data, val_data = AgeDataHandler(args.train_datadir, batch_size).train_val_split()
     logging.info("Number of training observations: {}".format(len(train_data)))
-    val_data = AgeDataHandler(args.val_datadir, batch_size)
+    # import pdb; pdb.set_trace()
+    # val_data = AgeDataHandler(args.val_datadir, batch_size)
     logging.info("Number of validation observations: {}".format(len(val_data)))
 
     epoch_size = int(1.0*len(train_data)/batch_size) + 1

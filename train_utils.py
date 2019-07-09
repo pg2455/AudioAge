@@ -2,6 +2,7 @@ import random
 import torch
 import logger as logger
 import os
+from sklearn.model_selection import train_test_split
 
 class AgeDataHandler(object):
     CLASS_DICT =  {'teens':0, 'twenties':1, 'thirties':2, 'fourties':3, 'fifties':4, 'sixties':5, 'seventies':6}
@@ -15,7 +16,12 @@ class AgeDataHandler(object):
                 self.soundfiles.append((os.path.join(self.datadir, x, f), self.CLASS_DICT[x.split("_")[-1]]))
 
         random.shuffle(self.soundfiles)
+        self.obs = len(self.soundfiles)
+        self.train, self.val = train_test_split(self.soundfiles, test_size=0.1)
         self.idx = 0
+
+    def train_val_split(self):
+        return FileIterator(self.train, self.batch_size), FileIterator(self.val, self.batch_size)
 
     def __iter__(self):
         return self
@@ -33,6 +39,27 @@ class AgeDataHandler(object):
     def __len__(self):
         return len(self.soundfiles)
 
+class FileIterator(object):
+    def __init__(self, files, batch):
+        self.files = files
+        self.idx = 0
+        self.batch_size = batch
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self.idx >= len(self):
+            self.idx = 0
+            random.shuffle(self.files)
+            raise StopIteration
+        else:
+            out = self.files[self.idx : self.idx + self.batch_size]
+            self.idx += self.batch_size
+            return out
+
+    def __len__(self):
+        return len(self.files)
 
 def init_visdom(env_name, config):
     assert type(config) == dict
