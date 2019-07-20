@@ -10,5 +10,6 @@
   "l2":0.0,
   "epoch":100,
   "job_name":"base",
-  "lastupdate":10
+  "lastupdate":10,
+  "features":"mfcc"
 }
