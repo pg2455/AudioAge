@@ -14,7 +14,7 @@ def compute_loss(batch, backward = False):
     observations = []
     target = torch.zeros(len(batch), 7)
     for i, (soundfile, category) in enumerate(batch):
-        Sxx = parse_soundfile(soundfile, timeframe, window_fn)
+        Sxx = parse_soundfile(soundfile, timeframe, window_fn, features)
         observations.append(Sxx)
         target[i,category] = 1.0
 
@@ -136,6 +136,7 @@ if  __name__ == "__main__":
     patience = params.schedulerpatience
     weight_decay = params.l2
     epoch_limit = params.epoch
+    features=params.features
 
     window_fn = signal.tukey(51, 0.5)
     if windowfn == "gaussian":

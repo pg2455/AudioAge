@@ -3,6 +3,7 @@ import numpy as np
 from scipy import signal
 import soundfile as sf
 import torch
+import librosa
 
 def audio_norm(data):
     max_data = np.max(data)
@@ -10,12 +11,13 @@ def audio_norm(data):
     data = (data-min_data)/(max_data-min_data+0.0001)
     return data-0.5
 
-def parse_soundfile(filepath, timeframe=5, window_fn=signal.gaussian(50, std=1)):
+def parse_soundfile(filepath, timeframe=5, window_fn=signal.gaussian(50, std=1), features="fft"):
     """
     timeframe: The length of audio in seconds to consider
     window_fn: The characteristic of the window
     """
-    input_length = timeframe * 16000
+    sr = 16000
+    input_length = timeframe * sr
     data, fs = sf.read(filepath)
     if len(data) > input_length:
         max_offset = len(data) - input_length
@@ -31,7 +33,10 @@ def parse_soundfile(filepath, timeframe=5, window_fn=signal.gaussian(50, std=1))
     # sd.play(data, fs)
     # sd.wait()
 
-    f, t, Sxx = signal.spectrogram(data, window=window_fn)
+    if features == "fft":
+        f, t, Sxx = signal.spectrogram(data, window=window_fn)
+    elif features == "mfcc":
+        Sxx = librosa.feature.mfcc(y=data, sr=sr)
     # print(f.shape, t.shape, Sxx.shape, data.shape, fs)
     return torch.Tensor(Sxx).unsqueeze(0)
 
