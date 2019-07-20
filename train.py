@@ -7,6 +7,9 @@ import logging
 import torch.optim as optim
 import numpy as np
 
+np.random.seed(1)
+torch.manual_seed(1)
+
 from train_utils import AgeDataHandler, init_visdom
 from base_utils import Params, set_logger, parse_soundfile
 
@@ -136,7 +139,7 @@ if  __name__ == "__main__":
     patience = params.schedulerpatience
     weight_decay = params.l2
     epoch_limit = params.epoch
-    features=params.features
+    features=params.dict.get("features", "fft")
 
     window_fn = signal.tukey(51, 0.5)
     if windowfn == "gaussian":
