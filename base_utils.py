@@ -36,7 +36,7 @@ def parse_soundfile(filepath, timeframe=5, window_fn=signal.gaussian(50, std=1),
     if features == "fft":
         f, t, Sxx = signal.spectrogram(data, window=window_fn)
     elif features == "mfcc":
-        Sxx = librosa.feature.mfcc(y=data, sr=sr)
+        Sxx = librosa.feature.mfcc(y=data, sr=sr, n_mfcc=40)
     # print(f.shape, t.shape, Sxx.shape, data.shape, fs)
     return torch.Tensor(Sxx).unsqueeze(0)
 
