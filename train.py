@@ -135,7 +135,7 @@ if  __name__ == "__main__":
 
     def get_weight_vector():
         if params.dict.get("weightedloss", False):
-            return torch.Tensor([5,1,1,1,10,10])
+            return torch.Tensor([5,1,1,1,5,5,10])
         return None
 
     timeframe = params.timeframe
