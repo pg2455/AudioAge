@@ -6,7 +6,9 @@ from scipy import signal
 import logging
 import torch.optim as optim
 import numpy as np
+import random
 
+random.seed(1)
 np.random.seed(1)
 torch.manual_seed(1)
 
@@ -127,7 +129,14 @@ if  __name__ == "__main__":
 
     set_logger(os.path.join(MODELDIR, "train.log"))
 
-    loss_fn = torch.nn.BCEWithLogitsLoss()
+    def loss_fn(output, target):
+        criterion = torch.nn.BCEWithLogitsLoss(pos_weight=get_weight_vector())
+        return criterion(output, target)
+
+    def get_weight_vector():
+        if params.dict.get("weightedloss", False):
+            return torch.Tensor([5,1,1,1,10,10])
+        return None
 
     timeframe = params.timeframe
     windowfn = params.windowfn
