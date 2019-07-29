@@ -30,6 +30,7 @@ def compute_loss(batch, backward = False):
 
     output = model(observations)
     loss = loss_fn(output, target)
+    import pdb; pdb.set_trace()
     if backward:
         loss.backward()
 
@@ -44,7 +45,6 @@ def eval_model(val_data):
         total_obs += len(batch)
 
     return total_loss/total_obs, total_acc/total_obs
-
 
 def train(model, train_data, optimizer):
     best_acc, last_update= 0.0 , 0
@@ -75,7 +75,8 @@ def train(model, train_data, optimizer):
 
                 norm = 0
                 for param in model.parameters():
-                    norm += param.norm(2)
+                    if param.requires_grad:
+                        norm += param.norm(2)
                 plot_norm(torch.sqrt(norm))
 
                 # save model
@@ -178,7 +179,7 @@ if  __name__ == "__main__":
     else:
         raise
 
-
+    model.droprate=0.7
     if params.dict.get('optim',"adam") == "adam":
         optimizer = optim.Adam(model.parameters(), lr = lr, weight_decay=weight_decay)
         patience = 50
