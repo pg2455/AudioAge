@@ -170,11 +170,11 @@ if  __name__ == "__main__":
     if params.modelarch == "resnet18":
         model = models.resnet18(pretrained=False)
         model.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3,bias=False)
-        model.fc = torch.nn.Linear(512, 7, bias = True)
+        model.fc = torch.nn.Linear(512, 8, bias = True)
     elif params.modelarch == "resnet34":
         model = models.resnet34(pretrained=False)
         model.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3,bias=False)
-        model.fc = torch.nn.Linear(512, 7, bias = True)
+        model.fc = torch.nn.Linear(512, 8, bias = True)
     else:
         raise
 
