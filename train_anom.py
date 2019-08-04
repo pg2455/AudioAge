@@ -65,7 +65,7 @@ def train(model, train_data, optimizer):
             update_metrics(batch_loss, 0, key = 'train')
 
             batch_seen += 1
-            if batch_seen % x_batches == 0 or True:
+            if batch_seen % x_batches == 0:
                 val_loss = eval_model(val_data)
                 update_metrics(val_loss, 0, key = 'val')
                 log_metrics()
@@ -205,16 +205,18 @@ if  __name__ == "__main__":
         else:
             raise
 
+    _C_ = torch.zeros(FINAL_DIM)
+    if cuda:
+        model = model.cuda()
+        _C_ = _C_.cuda()
+
     # compute C
     eps = 1e-3
     ETA = 1.0
-    _C_ = torch.zeros(FINAL_DIM)
     n_samples = 0
     model.eval()
     with torch.no_grad():
         for c,batch in enumerate(train_data):
-            if c > 2:
-                break
             observations = []
             for i, (soundfile, category) in enumerate(batch):
                 Sxx = parse_soundfile(soundfile, timeframe, window_fn, features)
@@ -229,9 +231,6 @@ if  __name__ == "__main__":
     # If c_i is too close to 0, set to +-eps. Reason: a zero unit can be trivially matched with zero weights.
     _C_[(abs(_C_) < eps) & (_C_ < 0)] = -eps
     _C_[(abs(_C_) < eps) & (_C_ > 0)] = eps
-
-    if cuda:
-        model = model.cuda()
 
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode="max", factor=factor, patience=patience, verbose=True)
     update_metrics, log_metrics, plot_norm = init_visdom(env_name, config)
