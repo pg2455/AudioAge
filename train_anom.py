@@ -228,6 +228,9 @@ if  __name__ == "__main__":
                 observations.append(Sxx)
 
             observations = torch.stack(observations)
+            if cuda:
+                observations = observations.cuda()
+
             outputs = model(observations)
             n_samples += outputs.shape[0]
             _C_ += torch.sum(outputs, dim = 0)
