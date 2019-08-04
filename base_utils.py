@@ -4,6 +4,7 @@ from scipy import signal
 import soundfile as sf
 import torch
 import librosa
+import sounddevice as sd
 
 def audio_norm(data):
     max_data = np.max(data)
@@ -32,6 +33,7 @@ def parse_soundfile(filepath, timeframe=5, window_fn=signal.gaussian(50, std=1),
         data = np.pad(data, (offset, input_length - len(data) - offset), "constant")
 
     data = audio_norm(data)
+    # import pdb; pdb.set_trace()
     # print(data.max(), data.min())
     # sd.play(data, fs)
     # sd.wait()

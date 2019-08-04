@@ -5,7 +5,7 @@ import os
 from sklearn.model_selection import train_test_split
 
 class AgeDataHandler(object):
-    CLASS_DICT =  {'teens':0, 'twenties':1, 'thirties':2, 'fourties':3, 'fifties':4, 'sixties':5, 'seventies':6}
+    CLASS_DICT =  {'teens':0, 'twenties':1, 'thirties':2, 'fourties':3, 'fifties':4, 'sixties':5, 'seventies':6, 'eighties':7}
     def __init__(self, datadir, batch_size=64):
         self.datadir = datadir
         self.batch_size = 64

@@ -17,33 +17,34 @@ from base_utils import Params, set_logger, parse_soundfile
 
 def compute_loss(batch, backward = False):
     observations = []
-    target = torch.zeros(len(batch), 7)
+    targets = torch.zeros(len(batch))
     for i, (soundfile, category) in enumerate(batch):
         Sxx = parse_soundfile(soundfile, timeframe, window_fn, features)
         observations.append(Sxx)
-        target[i,category] = 1.0
+        targets[i] = 2.0*(category < 6) - 1 if category is not None else 0
 
     observations = torch.stack(observations)
     if cuda:
         observations = observations.cuda()
-        target = target.cuda()
+        targets = targets.cuda()
 
-    output = model(observations)
-    loss = loss_fn(output, target)
+    outputs = model(observations)
+    dist = torch.sum((outputs - _C_) ** 2, dim=1)
+    losses  = torch.where(targets == 0, dist, ETA * ((dist + eps) ** targets.float()) )
+    loss = torch.mean(losses)
     if backward:
         loss.backward()
 
-    return loss.detach().item() / len(batch), 1.0 * (torch.argmax(output, dim=1) == torch.argmax(target, dim=1)).sum().item() / len(batch)
+    return loss.detach().item() / len(batch)
 
 def eval_model(val_data):
     total_loss, total_acc, total_obs = 0, 0, 0
     for i, batch in enumerate(val_data):
-        batch_loss, batch_acc  = compute_loss(batch, backward = False)
+        batch_loss = compute_loss(batch, backward = False)
         total_loss +=  batch_loss * len(batch)
-        total_acc += batch_acc *  len(batch)
         total_obs += len(batch)
 
-    return total_loss/total_obs, total_acc/total_obs
+    return total_loss/total_obs
 
 def train(model, train_data, optimizer):
     best_acc, last_update= 0.0 , 0
@@ -55,20 +56,18 @@ def train(model, train_data, optimizer):
         scheduler.step(val_acc)
         avg_loss, avg_accuracy = 0.0, 0.0
         for i, batch in enumerate(train_data):
-
             optimizer.zero_grad()
-            batch_loss, batch_acc  = compute_loss(batch, backward = True)
+            batch_loss  = compute_loss(batch, backward = True)
             optimizer.step()
 
-            print(batch_loss, batch_acc)
+            print(batch_loss)
             avg_loss +=  batch_loss
-            avg_accuracy += batch_acc
-            update_metrics(batch_loss, batch_acc, key = 'train')
+            update_metrics(batch_loss, 0, key = 'train')
 
             batch_seen += 1
-            if batch_seen % x_batches == 0:
-                val_loss, val_acc = eval_model(val_data)
-                update_metrics(val_loss, val_acc, key = 'val')
+            if batch_seen % x_batches == 0 or True:
+                val_loss = eval_model(val_data)
+                update_metrics(val_loss, 0, key = 'val')
                 log_metrics()
                 logging.info("@Validation round:{}, val_acc:{:.5} val_loss:{:.5}".format(batch_seen/x_batches, val_acc, val_loss))
 
@@ -129,9 +128,6 @@ if  __name__ == "__main__":
 
     set_logger(os.path.join(MODELDIR, "train.log"))
 
-    def loss_fn(output, target):
-        criterion = torch.nn.BCEWithLogitsLoss(pos_weight=get_weight_vector())
-        return criterion(output, target)
 
     def get_weight_vector():
         if params.dict.get("weightedloss", False):
@@ -167,14 +163,16 @@ if  __name__ == "__main__":
                   epoch_size=epoch_size, train_data=len(train_data), val_data=len(val_data))
     config.update(params.dict)
 
+    CLASSES = 2 # 0 normal; 1 abnormal
+    FINAL_DIM=256
     if params.modelarch == "resnet18":
         model = models.resnet18(pretrained=False)
         model.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3,bias=False)
-        model.fc = torch.nn.Linear(512, 7, bias = True)
+        model.fc = torch.nn.Linear(512, FINAL_DIM, bias = True)
     elif params.modelarch == "resnet34":
         model = models.resnet34(pretrained=False)
         model.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3,bias=False)
-        model.fc = torch.nn.Linear(512, 7, bias = True)
+        model.fc = torch.nn.Linear(512, FINAL_DIM, bias = True)
     else:
         raise
 
@@ -207,10 +205,36 @@ if  __name__ == "__main__":
         else:
             raise
 
+    # compute C
+    eps = 1e-3
+    ETA = 1.0
+    _C_ = torch.zeros(FINAL_DIM)
+    n_samples = 0
+    model.eval()
+    with torch.no_grad():
+        for c,batch in enumerate(train_data):
+            if c > 2:
+                break
+            observations = []
+            for i, (soundfile, category) in enumerate(batch):
+                Sxx = parse_soundfile(soundfile, timeframe, window_fn, features)
+                observations.append(Sxx)
+
+            observations = torch.stack(observations)
+            outputs = model(observations)
+            n_samples += outputs.shape[0]
+            _C_ += torch.sum(outputs, dim = 0)
+
+    _C_ /= n_samples
+    # If c_i is too close to 0, set to +-eps. Reason: a zero unit can be trivially matched with zero weights.
+    _C_[(abs(_C_) < eps) & (_C_ < 0)] = -eps
+    _C_[(abs(_C_) < eps) & (_C_ > 0)] = eps
+
     if cuda:
         model = model.cuda()
 
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode="max", factor=factor, patience=patience, verbose=True)
     update_metrics, log_metrics, plot_norm = init_visdom(env_name, config)
 
+    model.train()
     train(model, train_data, optimizer)
