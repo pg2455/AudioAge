@@ -7,6 +7,7 @@ import logging
 import torch.optim as optim
 import numpy as np
 import random
+from sklearn.metrics import roc_auc_score
 
 random.seed(1)
 np.random.seed(1)
@@ -34,26 +35,31 @@ def compute_loss(batch, backward = False):
     loss = torch.mean(losses)
     if backward:
         loss.backward()
-
-    return loss.detach().item() / len(batch)
+        return loss.detach().item() / len(batch)
+    else:
+        return loss.detach().item() / len(batch), dist.cpu().data.numpy().tolist(), targets.cpu().data.numpy().tolist()
 
 def eval_model(val_data):
-    total_loss, total_acc, total_obs = 0, 0, 0
+    total_loss, total_obs = 0, 0
+    scores, targets = [], []
     for i, batch in enumerate(val_data):
-        batch_loss = compute_loss(batch, backward = False)
+        batch_loss, x,y = compute_loss(batch, backward = False)
         total_loss +=  batch_loss * len(batch)
         total_obs += len(batch)
+        scores += x
+        targets += y
 
-    return total_loss/total_obs
+    auc = roc_auc_score(targets, scores)
+    return total_loss/total_obs, auc
 
 def train(model, train_data, optimizer):
-    best_acc, last_update= 0.0 , 0
+    best_auc, last_update= 0.0 , 0
     epoch, batch_seen = 0, 0
-    val_acc, val_loss, norm = -1.0, np.finfo(np.float).max, -1.0
+    auc, val_loss, norm = 0, np.finfo(np.float).max, -1.0
     continue_train = True
     while continue_train:
         epoch += 1
-        scheduler.step(val_acc)
+        scheduler.step(auc)
         avg_loss, avg_accuracy = 0.0, 0.0
         for i, batch in enumerate(train_data):
             optimizer.zero_grad()
@@ -66,8 +72,8 @@ def train(model, train_data, optimizer):
 
             batch_seen += 1
             if batch_seen % x_batches == 0:
-                val_loss = eval_model(val_data)
-                update_metrics(val_loss, 0, key = 'val')
+                val_loss, auc = eval_model(val_data)
+                update_metrics(val_loss, auc, key = 'val')
                 log_metrics()
                 logging.info("@Validation round:{}, val_acc:{:.5} val_loss:{:.5}".format(batch_seen/x_batches, val_acc, val_loss))
 
@@ -78,14 +84,14 @@ def train(model, train_data, optimizer):
                 plot_norm(torch.sqrt(norm))
 
                 # save model
-                if val_acc <= best_acc:
+                if auc <= best_auc:
                     last_update += 1
                 else:
-                    best_acc = val_acc
+                    best_auc = auc
                     last_update = 0
 
                     torch.save(model.state_dict(), os.path.join(MODELDIR, "model.torch"))
-                    model_state_tmp = dict(config=config, optimizer=optimizer.state_dict(), val_acc=val_acc, val_loss=val_loss, finished= not continue_train,\
+                    model_state_tmp = dict(config=config, optimizer=optimizer.state_dict(), auc=auc, val_loss=val_loss, finished= not continue_train,\
                                       train_acc=avg_accuracy/(batch_seen+1), train_loss= avg_loss/(batch_seen+1), epoch=epoch, batch_seen=batch_seen)
 
                     model_state = {}
@@ -127,7 +133,6 @@ if  __name__ == "__main__":
     params = Params(json_path)
 
     set_logger(os.path.join(MODELDIR, "train.log"))
-
 
     def get_weight_vector():
         if params.dict.get("weightedloss", False):
