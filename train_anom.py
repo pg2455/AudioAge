@@ -49,7 +49,9 @@ def eval_model(val_data):
         scores += x
         targets += y
 
-    auc = roc_auc_score(targets, scores)
+    auc = -1.0
+    if len(set(targets)) == 2:
+        auc = roc_auc_score(targets, scores)
     return total_loss/total_obs, auc
 
 def train(model, train_data, optimizer):
@@ -75,7 +77,7 @@ def train(model, train_data, optimizer):
                 val_loss, auc = eval_model(val_data)
                 update_metrics(val_loss, auc, key = 'val')
                 log_metrics()
-                logging.info("@Validation round:{}, val_acc:{:.5} val_loss:{:.5}".format(batch_seen/x_batches, val_acc, val_loss))
+                logging.info("@Validation round:{}, auc:{:.5} val_loss:{:.5}".format(batch_seen/x_batches, auc, val_loss))
 
                 norm = 0
                 for param in model.parameters():
@@ -105,7 +107,7 @@ def train(model, train_data, optimizer):
                     break
 
     logging.info("@epoch:{}, train loss:{:.2}, train accuracy:{:.2},  val loss:{:.2}, \
-        val accuracy:{:.2}, param norm:{:.2}".format(epoch,avg_loss/(batch_seen+1), avg_accuracy/(batch_seen+1), val_loss, val_acc, norm))
+        auc:{:.2}, param norm:{:.2}".format(epoch,avg_loss/(batch_seen+1), avg_accuracy/(batch_seen+1), val_loss, auc, norm))
 
     model_state = torch.load(os.path.join(MODELDIR, "model_training.state"), map_location='cpu')
     model_state["curr_epoch"] = epoch
