@@ -17,6 +17,11 @@ from train_utils import AgeDataHandler, init_visdom
 from base_utils import Params, set_logger, parse_soundfile
 
 def compute_loss(batch, backward = False):
+    if backward:
+        model.train()
+    else:
+        model.eval()
+
     observations = []
     targets = torch.zeros(len(batch))
     for i, (soundfile, category) in enumerate(batch):
@@ -37,7 +42,7 @@ def compute_loss(batch, backward = False):
         loss.backward()
         return loss.detach().item() / len(batch)
     else:
-        return loss.detach().item() / len(batch), dist.cpu().data.numpy().tolist(), targets.cpu().data.numpy().tolist()
+        return loss.detach().item() / len(batch), dist.cpu().data.numpy().tolist(), (-1*targets).cpu().data.numpy().tolist()
 
 def eval_model(val_data):
     total_loss, total_obs = 0, 0
@@ -245,5 +250,4 @@ if  __name__ == "__main__":
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode="max", factor=factor, patience=patience, verbose=True)
     update_metrics, log_metrics, plot_norm = init_visdom(env_name, config)
 
-    model.train()
     train(model, train_data, optimizer)
