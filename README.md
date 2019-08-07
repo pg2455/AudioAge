@@ -1,14 +1,13 @@
 # ResNet on Audio for Age Classification
 
 ## How to run a single experiment
-`train.py` is the training script. It takes the following arguments -  
+`train.py` is a training script for age classification.
+`train_anom.py` is a training script which treats ages above 70 as an anomaly.
+Both the scripts takes following arguments -  
 
 ```
 -train_datadir TRAIN_DATADIR
                        training directory containing folders of soundfiles
-                       grouped in their classes e.g. .../age/
- -val_datadir VAL_DATADIR
-                       validation directory containing folders of soundfiles
                        grouped in their classes e.g. .../age/
  -cuda CUDA            to run on cuda
  -pretrained PRETRAINED
@@ -18,6 +17,7 @@
 ```
 
 `MODELDIR` is the directory where the `params.json` should be present.
+`params.json` defines training configuration as well as model hyperparameters.
 
 Check `run.sh` for an example.
 
