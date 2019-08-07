@@ -3,7 +3,7 @@
 ## How to run a single experiment
 `train.py` is a training script for age classification.
 `train_anom.py` is a training script which treats ages above 70 as an anomaly.
-Both the scripts takes following arguments -  
+Both the scripts takes the following arguments -  
 
 ```
 -train_datadir TRAIN_DATADIR
@@ -35,8 +35,8 @@ Common_voice
 `data_cleaning.py` converts the data to `.wav` format and deletes the `.mp3` version.
 
 ## Prerequisites
-The Python libraries used are in `requirements.txt`
-Additionally, `mlogger` used for logging the training progress in `visdom` is specifically from a particular commit. Follow these steps to install the mlogger -
+The Python libraries used in this project are in `requirements.txt`
+Additionally, the library - `mlogger` used for logging the training progress in `visdom` is from a specific commit. Follow these steps to install the mlogger -
 
 ```
 git clone https://github.com/oval-group/mlogger.git
@@ -59,4 +59,4 @@ python shell_utils.py --show_results -id=GAUSSIANres18
 
 ## Troubleshooting
 
-* If `scipy.signal` aborts, it try `export KMP_DUPLICATE_LIB_OK=TRUE` before running the script.
+* If `scipy.signal` aborts, try `export KMP_DUPLICATE_LIB_OK=TRUE` before running the script.
