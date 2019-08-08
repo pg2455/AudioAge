@@ -5,7 +5,7 @@ from torchvision import models
 import torch, os
 import torch.nn as nn
 import numpy as np
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import confusion_matrix, precision_recall_fscore_support
 from train_utils import AgeDataHandler
 
 np.random.seed(1)
@@ -32,3 +32,6 @@ for batch in val_data:
     pred = torch.argmax(output, dim=1)
     y_pred += list(pred)
 print(confusion_matrix(y_true, y_pred))
+print("micro", precision_recall_fscore_support(y_true, y_pred, average='micro'))
+print("macro", precision_recall_fscore_support(y_true, y_pred, average='macro'))
+print("weighted", precision_recall_fscore_support(y_true, y_pred, average='weighted'))
