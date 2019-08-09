@@ -31,6 +31,7 @@ for batch in val_data:
     output = model(torch.stack(observations))
     pred = torch.argmax(output, dim=1)
     y_pred += list(pred)
+
 print(confusion_matrix(y_true, y_pred))
 print("micro", precision_recall_fscore_support(y_true, y_pred, average='micro'))
 print("macro", precision_recall_fscore_support(y_true, y_pred, average='macro'))

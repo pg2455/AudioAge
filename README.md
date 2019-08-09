@@ -50,13 +50,21 @@ Further details on this training model can be found in `train_anom.py`.
 
 ## Transfer Learning
 In the second stage of the project, we extracted the features from the above models to check the performance on the smaller Alzheimer's dataset.
+Due to improper diarization of the dataset, we had to focus on just the Story Recall Test where we could obtain a continuous 20 second audio sample.
+This project treats all the observations as independent (see Caveat 1 below).
+As the training results weren't conclusive, we don't report any numbers here.
+The code for transfer learning is in `train_transfer.py`.
+The script implements two loss functions - (i) ranking loss similar to SVMs, (ii) cross-entropy loss.
+`run_transfer.sh` provides an example on how to run this script.
 
+**Caveat 1:** Since the dataset contains a longitudinal study of patients being interviewed one needs to be careful about how to split the dataset. The observations in the dataset are not independent as there can be multiple recrodings of the same person. The 2017 survey [4] on data splitting techniques will be of help.
 
+**Caveat 2:** This project used only the last layer as features, but it is possible to use other layers as features as well.
 
 ## How to run a single experiment
 `train.py` is a training script for age classification.
 `train_anom.py` is a training script which treats ages above 70 as an anomaly.
-Both the scripts takes the following arguments -  
+They take the following arguments -  
 
 ```
 -train_datadir TRAIN_DATADIR
@@ -71,8 +79,10 @@ Both the scripts takes the following arguments -
 
 `MODELDIR` is the directory where the `params.json` should be present.
 `params.json` defines training configuration as well as model hyperparameters.
-
-Check `run.sh` for an example.
+A train and test split on train_datadir is performed in the script itself.
+A seed is set in the code to result in the same split every time.
+Check `run.sh` for an example to run the code.
+`confusion.py` computes confusion matrix and outputs several performance metrics.
 
 ## Data
 
@@ -120,3 +130,5 @@ python shell_utils.py --show_results -id=GAUSSIANres18
 [2] Hembury, G. A., Borovkov, V. V., Lintuluoto, J. M., & Inoue, Y. (2003). Deep Residual Learning for Image Recognition Kaiming. CVPR, 32(5), 428–429. https://doi.org/10.1246/cl.2003.428
 
 [3] Ruff, L., Vandermeulen, R. A., Görnitz, N., Binder, A., Müller, E., Müller, K.-R., & Kloft, M. (2019). Deep Semi-Supervised Anomaly Detection, http://arxiv.org/abs/1906.02694
+
+[4] Little, M. A., Varoquaux, G., Saeb, S., Lonini, L., Jayaraman, A., Mohr, D. C., & Kording, K. P. (2017). Using and understanding cross-validation strategies. Perspectives on Saeb et al. GigaScience, 6(5), 1–6. doi:10.1093/gigascience/gix020

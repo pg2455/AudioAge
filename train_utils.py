@@ -1,5 +1,6 @@
 import random
 import torch
+import torch.nn as nn
 import logger as logger
 import os
 from sklearn.model_selection import train_test_split
@@ -16,6 +17,7 @@ class AgeDataHandler(object):
                 self.soundfiles.append((os.path.join(self.datadir, x, f), self.CLASS_DICT[x.split("_")[-1]]))
 
         random.shuffle(self.soundfiles)
+        self.soundfiles = self.soundfiles[:40]
         self.obs = len(self.soundfiles)
         self.train, self.val = train_test_split(self.soundfiles, test_size=0.1)
         self.idx = 0
@@ -61,6 +63,9 @@ class FileIterator(object):
     def __len__(self):
         return len(self.files)
 
+    def tolist(self):
+        return self.files
+
 def init_visdom(env_name, config):
     assert type(config) == dict
 
@@ -105,3 +110,18 @@ def init_visdom(env_name, config):
         norm.reset()
 
     return update_metrics, log_metrics, plot_norm
+
+
+class AnomModel(nn.Module):
+    def __init__(self, feature_model):
+        super(AnomModel, self).__init__()
+        self.model = feature_model
+        DIM = self.model.fc.out_features
+        self.out = nn.Sequential(
+            nn.Linear(DIM, DIM),
+            nn.ReLU(),
+            nn.Linear(DIM,2)
+        )
+
+    def forward(self, input):
+        return self.out(self.model(input))

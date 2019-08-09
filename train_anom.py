@@ -35,6 +35,7 @@ def compute_loss(batch, backward = False):
         targets = targets.cuda()
 
     outputs = model(observations)
+    ## refer https://github.com/lukasruff/Deep-SVDD-PyTorch
     dist = torch.sum((outputs - _C_) ** 2, dim=1)
     losses  = torch.where(targets == 0, dist, ETA * ((dist + eps) ** targets.float()) )
     loss = torch.mean(losses)
