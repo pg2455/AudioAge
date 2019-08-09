@@ -1,4 +1,4 @@
-# ResNet on Audio for Age Classification
+# Use of Audio Features from Age Detector to Diagnose Cognitive Impairment
 
 ## Data Quality in Healthcare
 Data collection in healthcare is expensive and time consuming.
