@@ -1,4 +1,6 @@
 # ResNet on Audio for Age Classification
+
+## Data Quality in Healthcare
 Data collection in healthcare is expensive and time consuming.
 Most importantly, it should be done with utmost care because a poor data quality will only push back the progress of AI in healthcare.
 The machine learning community has been working hard to beat the benchmarks on the healthcare datasets.
@@ -12,6 +14,7 @@ All these factors add to the cost of data collection in healthcare, and is not a
 And there are many changes that occur across the time span of this process, like installing good microphones halfway into the study.
 Thus, we need ways to deal with such scarcity as well as the noise in datasets.  
 
+## What this repo is about?
 This repo is a collaboration on a project to build an end-to-end deep learning classifier to detect mild cognitive impairment from a dataset which has a very few observations compared to what are required in such highly parameterized networks.
 The dataset has interview recordings of less than 150 patients taken periodically across 30 years.
 Some of them are controls, and some of them are patients who are at the some stage of Alzheimer's.
@@ -22,9 +25,10 @@ However, one needs to take into account several other factors while building suc
 - All of the patients in the study belonged to the same geographical area. Therefore, the models are less likely to generalize to patients from different demography.
 - Manual feature engineering is not always feasible as there are chances of leaving out some crucial features or interactions thereof.
 
-This project aims at applying transfer learning to make an end-to-end deep learning classifier for Alzheimer's.
+This project aims at applying ** transfer learning to make an end-to-end deep learning classifier for Alzheimer's**.
 Unfortunately, the data is not open sourced, so one can't run some of these experiments at their end, but we aim to display results and discuss some shortcomings that we faced.
 
+## Age Classifier
 We use Resnet [2] architecture on audio data from [CommonVoice](https://voice.mozilla.org/en) to classify age.
 We found the best performance (about 85% weighted accuracy) of the model when the audio samples were transformed into their MFCC format.
 Further details on training method can be found in `train.py`.
@@ -44,6 +48,7 @@ The model that treats older age as anomaly got an AUC of 0.8 for male and 0.6 fo
 As evident from the AUC, we don't expect to have good features here.
 Further details on this training model can be found in `train_anom.py`.
 
+## Transfer Learning
 In the second stage of the project, we extracted the features from the above models to check the performance on the smaller Alzheimer's dataset.
 
 
