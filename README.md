@@ -25,7 +25,7 @@ However, one needs to take into account several other factors while building suc
 - All of the patients in the study belonged to the same geographical area. Therefore, the models are less likely to generalize to patients from different demography.
 - Manual feature engineering is not always feasible as there are chances of leaving out some crucial features or interactions thereof.
 
-This project aims at applying ** transfer learning to make an end-to-end deep learning classifier for Alzheimer's**.
+This project aims at applying **transfer learning to make an end-to-end deep learning classifier for Alzheimer's**.
 Unfortunately, the data is not open sourced, so one can't run some of these experiments at their end, but we aim to display results and discuss some shortcomings that we faced.
 
 ## Age Classifier
